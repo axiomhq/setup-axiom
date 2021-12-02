@@ -2,6 +2,9 @@ import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as http from '@actions/http-client';
 import {tokens} from '@axiomhq/axiom-node';
+import * as io from '@actions/io';
+import * as fs from 'fs';
+import * as dockerCompose from './docker-compose';
 
 const AxiomUrl = 'http://localhost:8080';
 const AxiomEmail = 'info@axiom.co';
@@ -11,8 +14,9 @@ const sleep = (ms: number) => {
   return new Promise((resolve, _reject) => setTimeout(resolve, ms));
 };
 
-async function startStack(version: string) {
+async function startStack(dir: string, version: string) {
   await exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], {
+    cwd: dir,
     env: {
       AXIOM_VERSION: version
     }
@@ -81,15 +85,26 @@ async function createPersonalToken(client: http.HttpClient): Promise<string> {
   return rawToken.result!.token;
 }
 
-export async function run() {
+async function writeDockerComposeFile(dir: string) {
+  await io.mkdirP(dir);
+  await fs.promises.writeFile(
+    `${dir}/docker-compose.yml`,
+    dockerCompose.Content
+  );
+}
+
+export async function run(dir: string) {
   try {
     let version = core.getInput('axiom-version');
     const client = new http.HttpClient('github.com/axiomhq/setup-axiom');
 
     core.info(`Setting up Axiom ${version}`);
 
+    core.info('Writing docker-compose file');
+    writeDockerComposeFile(dir);
+
     core.startGroup('Starting stack');
-    await startStack(version);
+    await startStack(dir, version);
     core.endGroup();
 
     core.info('Waiting until Axiom is ready');

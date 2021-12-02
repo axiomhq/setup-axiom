@@ -1474,11 +1474,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const main = __importStar(__webpack_require__(198));
 const post = __importStar(__webpack_require__(644));
 const stateHelper = __importStar(__webpack_require__(153));
+const TmpDir = '/tmp/setup-axiom';
 if (!stateHelper.IsPost) {
-    main.run();
+    main.run(TmpDir);
 }
 else {
-    post.run();
+    post.run(TmpDir);
 }
 
 
@@ -1522,15 +1523,19 @@ exports.run = void 0;
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
 const http = __importStar(__webpack_require__(539));
+const io = __importStar(__webpack_require__(1));
+const fs = __importStar(__webpack_require__(747));
+const dockerCompose = __importStar(__webpack_require__(640));
 const AxiomUrl = 'http://localhost:8080';
 const AxiomEmail = 'info@axiom.co';
 const AxiomPassword = 'setup-axiom';
 const sleep = (ms) => {
     return new Promise((resolve, _reject) => setTimeout(resolve, ms));
 };
-function startStack(version) {
+function startStack(dir, version) {
     return __awaiter(this, void 0, void 0, function* () {
         yield exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], {
+            cwd: dir,
             env: {
                 AXIOM_VERSION: version
             }
@@ -1585,14 +1590,22 @@ function createPersonalToken(client) {
         return rawToken.result.token;
     });
 }
-function run() {
+function writeDockerComposeFile(dir) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield io.mkdirP(dir);
+        yield fs.promises.writeFile(`${dir}/docker-compose.yml`, dockerCompose.Content);
+    });
+}
+function run(dir) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let version = core.getInput('axiom-version');
             const client = new http.HttpClient('github.com/axiomhq/setup-axiom');
             core.info(`Setting up Axiom ${version}`);
+            core.info('Writing docker-compose file');
+            writeDockerComposeFile(dir);
             core.startGroup('Starting stack');
-            yield startStack(version);
+            yield startStack(dir, version);
             core.endGroup();
             core.info('Waiting until Axiom is ready');
             yield waitUntilReady(client);
@@ -2706,6 +2719,52 @@ module.exports = require("net");
 
 /***/ }),
 
+/***/ 640:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Content = void 0;
+exports.Content = `version: '3.2'
+
+volumes:
+  postgres_data:
+  axiomdb_data:
+
+services:
+  axiom-db:
+    image: axiomhq/axiom-db:\${AXIOM_VERSION}
+    environment:
+      AXIOM_POSTGRES_URL: "postgres://axiom:axiom@postgres?sslmode=disable&connect_timeout=5"
+      AXIOM_STORAGE: "file:///data"
+    depends_on:
+      - minio
+      - postgres
+    restart: unless-stopped
+    volumes:
+      - axiomdb_data:/data
+  axiom-core:
+    image: axiomhq/axiom-core:\${AXIOM_VERSION}
+    environment:
+      AXIOM_POSTGRES_URL: "postgres://axiom:axiom@postgres?sslmode=disable&connect_timeout=5"
+      AXIOM_DB_URL: "http://axiom-db"
+    ports:
+      - 8080:80
+    depends_on:
+      - axiom-db
+    restart: unless-stopped
+  postgres: 
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: axiom
+      POSTGRES_PASSWORD: axiom
+    volumes:
+      - postgres_data:/var/lib/postgresql/data`;
+
+
+/***/ }),
+
 /***/ 644:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
@@ -2743,12 +2802,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.run = void 0;
 const core = __importStar(__webpack_require__(470));
 const exec_1 = __webpack_require__(986);
-function run() {
+function run(dir) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let version = core.getInput('axiom-version');
             core.info(`Stopping Axiom stack`);
             (0, exec_1.exec)('docker', ['compose', 'down', '-v'], {
+                cwd: dir,
                 env: {
                     AXIOM_VERSION: version
                 }
