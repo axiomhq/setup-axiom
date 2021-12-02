@@ -1,0 +1,12 @@
+name: "Setup Axiom"
+description: "Start a local Axiom deployment, set it up and create a personal token."
+author: "Axiom"
+inputs:
+  axiom-version:
+    description: "The Axiom version to use"
+    default: "1.14.0"
+    required: false
+runs:
+  using: "node12"
+  main: "dist/index.js"
+  post: "dist/index.js"
