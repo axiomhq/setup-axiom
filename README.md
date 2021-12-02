@@ -1,4 +1,4 @@
-# setup-axiom
+# setup-axiom [![CI](https://github.com/axiomhq/setup-axiom/actions/workflows/ci.yml/badge.svg)](https://github.com/axiomhq/setup-axiom/actions/workflows/ci.yml)
 
 This action sets up Axiom for use in actions by starting a `docker compose` 
 stack and configuring a personal token.
