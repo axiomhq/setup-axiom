@@ -8,10 +8,10 @@ stack and configuring a personal token.
 steps:
   - uses: actions/checkout@v2
   - uses: axiomhq/setup-axiom@v1
-    id: setup-action
+    id: axiom
     with:
-      axiom-version: 1.14.0
-  - run: echo "${{ steps.setup-action.personal-token }}"
+      axiom-version: 1.14.0 # Optional, will default to latest
+  - run: echo "${{ steps.axiom.outputs.personal-token }}"
 ```
 
 # License

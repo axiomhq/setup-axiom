@@ -46,7 +46,7 @@ jobs:
         id: axiom
         uses: ./
       - name: Verify we have a token
-        run: test -n "${{ steps.axiom.outputs.personal-token}}"
+        run: test -n "${{ steps.axiom.outputs.personal-token }}"
   action-with-version:
     name: "Action with version"
     runs-on: ubuntu-latest
@@ -62,4 +62,4 @@ jobs:
         with:
           axiom-version: ${{ matrix.axiom }}
       - name: Verify we have a token
-        run: test -n "${{ steps.axiom.outputs.personal-token}}"
+        run: test -n "${{ steps.axiom.outputs.personal-token }}"
