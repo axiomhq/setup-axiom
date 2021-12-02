@@ -27,7 +27,8 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/exec": "^1.1.0",
-    "@actions/http-client": "^1.0.11"
+    "@actions/http-client": "^1.0.11",
+    "@axiomhq/axiom-node": "^0.3.0"
   },
   "devDependencies": {
     "@types/node": "^16.11.11",
