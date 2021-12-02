@@ -1615,8 +1615,8 @@ function run(dir) {
             core.info('Initializing deployment');
             yield initializeDeployment(client, url);
             core.info('Creating personal token');
-            const personalToken = yield createPersonalToken(client, url);
-            core.setOutput('personal-token', personalToken);
+            const token = yield createPersonalToken(client, url);
+            core.setOutput('token', token);
             core.info(`Axiom is running and configured`);
         }
         catch (error) {

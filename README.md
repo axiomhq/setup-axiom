@@ -14,7 +14,7 @@ steps:
       axiom-port: 8080 # Optional, will default to 8080
   - run: |
       echo "Axiom address: ${{ steps.axiom.outputs.url }}"
-      echo "Axiom personal token: ${{ steps.axiom.outputs.personal-token }}"
+      echo "Axiom token: ${{ steps.axiom.outputs.token }}"
 ```
 
 This will run your deployment on <http://localhost:8080>. 

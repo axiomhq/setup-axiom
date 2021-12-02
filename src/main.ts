@@ -122,8 +122,8 @@ export async function run(dir: string) {
     await initializeDeployment(client, url);
 
     core.info('Creating personal token');
-    const personalToken = await createPersonalToken(client, url);
-    core.setOutput('personal-token', personalToken);
+    const token = await createPersonalToken(client, url);
+    core.setOutput('token', token);
 
     core.info(`Axiom is running and configured`);
   } catch (error: any) {
