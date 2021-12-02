@@ -1,6 +1,9 @@
 name: "Setup Axiom"
 description: "Start a local Axiom deployment, set it up and create a personal token."
 author: "Axiom"
+branding:
+  color: purple
+  icon: activity
 inputs:
   axiom-version:
     description: "The Axiom version to use"
