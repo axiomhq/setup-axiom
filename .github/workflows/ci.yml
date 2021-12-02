@@ -37,14 +37,26 @@ jobs:
             exit 1
           fi
         id: diff
-  action-without-version:
-    name: "Action without version"
+  action-without-args:
+    name: "Action without args"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Run axiomhq/setup-axiom@latest
         id: axiom
         uses: ./
+      - name: Verify we have a token
+        run: test -n "${{ steps.axiom.outputs.personal-token }}"
+  action-with-port:
+    name: "Action with port"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run axiomhq/setup-axiom@latest
+        id: axiom
+        uses: ./
+        with:
+          axiom-port: 3000
       - name: Verify we have a token
         run: test -n "${{ steps.axiom.outputs.personal-token }}"
   action-with-version:

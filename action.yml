@@ -9,6 +9,10 @@ inputs:
     description: "The Axiom version to use"
     default: "1.14.0"
     required: false
+  axiom-port:
+    description: "The port to run Axiom on"
+    default: "8080"
+    required: false
 runs:
   using: "node12"
   main: "dist/index.js"

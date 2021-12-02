@@ -1526,27 +1526,27 @@ const http = __importStar(__webpack_require__(539));
 const io = __importStar(__webpack_require__(1));
 const fs = __importStar(__webpack_require__(747));
 const dockerCompose = __importStar(__webpack_require__(640));
-const AxiomUrl = 'http://localhost:8080';
 const AxiomEmail = 'info@axiom.co';
 const AxiomPassword = 'setup-axiom';
 const sleep = (ms) => {
     return new Promise((resolve, _reject) => setTimeout(resolve, ms));
 };
-function startStack(dir, version) {
+function startStack(dir, version, port) {
     return __awaiter(this, void 0, void 0, function* () {
         yield exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], {
             cwd: dir,
             env: {
-                AXIOM_VERSION: version
+                AXIOM_VERSION: version,
+                AXIOM_PORT: port
             }
         });
     });
 }
-function waitUntilReady(client) {
+function waitUntilReady(client, url) {
     return __awaiter(this, void 0, void 0, function* () {
         for (let i = 0; i < 10; i++) {
             try {
-                yield client.get(AxiomUrl);
+                yield client.get(url);
                 break; // Reachable
             }
             catch (error) {
@@ -1555,9 +1555,9 @@ function waitUntilReady(client) {
         }
     });
 }
-function initializeDeployment(client) {
+function initializeDeployment(client, url) {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield client.postJson(`${AxiomUrl}/auth/init`, {
+        const res = yield client.postJson(`${url}/auth/init`, {
             org: 'setup-axiom',
             name: 'setup-axiom',
             email: AxiomEmail,
@@ -1568,9 +1568,9 @@ function initializeDeployment(client) {
         }
     });
 }
-function createPersonalToken(client) {
+function createPersonalToken(client, url) {
     return __awaiter(this, void 0, void 0, function* () {
-        const sessionRes = yield client.post(`${AxiomUrl}/auth/signin/credentials`, JSON.stringify({
+        const sessionRes = yield client.post(`${url}/auth/signin/credentials`, JSON.stringify({
             email: AxiomEmail,
             password: AxiomPassword
         }), {
@@ -1581,12 +1581,12 @@ function createPersonalToken(client) {
             throw new Error(`Failed to get session cookie, please create an issue at <https://github.com/axiomhq/setup-axiom/issues/new>`);
         }
         const cookie = cookieHeader[0].split(';')[0];
-        const tokenRes = yield client.postJson(`${AxiomUrl}/api/v1/tokens/personal`, {
+        const tokenRes = yield client.postJson(`${url}/api/v1/tokens/personal`, {
             name: 'setup-axiom',
             description: 'This token is automatically created by github.com/axiomhq/setup-axiom'
         }, { cookie });
-        const rawToken = yield client.getJson(`${AxiomUrl}/api/v1/tokens/personal/${tokenRes.result.id}/token`, { cookie });
-        yield client.post(`${AxiomUrl}/logout`, '', { cookie });
+        const rawToken = yield client.getJson(`${url}/api/v1/tokens/personal/${tokenRes.result.id}/token`, { cookie });
+        yield client.post(`${url}/logout`, '', { cookie });
         return rawToken.result.token;
     });
 }
@@ -1600,19 +1600,22 @@ function run(dir) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let version = core.getInput('axiom-version');
-            const client = new http.HttpClient('github.com/axiomhq/setup-axiom');
+            let port = core.getInput('axiom-port');
+            const url = `http://localhost:${port}`;
+            core.setOutput('url', url);
             core.info(`Setting up Axiom ${version}`);
             core.info('Writing docker-compose file');
             writeDockerComposeFile(dir);
             core.startGroup('Starting stack');
-            yield startStack(dir, version);
+            yield startStack(dir, version, port);
             core.endGroup();
+            const client = new http.HttpClient('github.com/axiomhq/setup-axiom');
             core.info('Waiting until Axiom is ready');
-            yield waitUntilReady(client);
+            yield waitUntilReady(client, url);
             core.info('Initializing deployment');
-            yield initializeDeployment(client);
+            yield initializeDeployment(client, url);
             core.info('Creating personal token');
-            const personalToken = yield createPersonalToken(client);
+            const personalToken = yield createPersonalToken(client, url);
             core.setOutput('personal-token', personalToken);
             core.info(`Axiom is running and configured`);
         }
@@ -2750,7 +2753,7 @@ services:
       AXIOM_POSTGRES_URL: "postgres://axiom:axiom@postgres?sslmode=disable&connect_timeout=5"
       AXIOM_DB_URL: "http://axiom-db"
     ports:
-      - 8080:80
+      - \${AXIOM_PORT}:80
     depends_on:
       - axiom-db
     restart: unless-stopped

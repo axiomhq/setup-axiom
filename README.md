@@ -11,8 +11,13 @@ steps:
     id: axiom
     with:
       axiom-version: 1.14.0 # Optional, will default to latest
-  - run: echo "${{ steps.axiom.outputs.personal-token }}"
+      axiom-port: 8080 # Optional, will default to 8080
+  - run: |
+      echo "Axiom address: ${{ steps.axiom.outputs.url }}"
+      echo "Axiom personal token: ${{ steps.axiom.outputs.personal-token }}"
 ```
+
+This will run your deployment on <http://localhost:8080>. 
 
 # License
 

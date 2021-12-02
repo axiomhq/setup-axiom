@@ -6,7 +6,6 @@ import * as io from '@actions/io';
 import * as fs from 'fs';
 import * as dockerCompose from './docker-compose';
 
-const AxiomUrl = 'http://localhost:8080';
 const AxiomEmail = 'info@axiom.co';
 const AxiomPassword = 'setup-axiom';
 
@@ -14,19 +13,20 @@ const sleep = (ms: number) => {
   return new Promise((resolve, _reject) => setTimeout(resolve, ms));
 };
 
-async function startStack(dir: string, version: string) {
+async function startStack(dir: string, version: string, port: string) {
   await exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], {
     cwd: dir,
     env: {
-      AXIOM_VERSION: version
+      AXIOM_VERSION: version,
+      AXIOM_PORT: port
     }
   });
 }
 
-async function waitUntilReady(client: http.HttpClient) {
+async function waitUntilReady(client: http.HttpClient, url: string) {
   for (let i = 0; i < 10; i++) {
     try {
-      await client.get(AxiomUrl);
+      await client.get(url);
       break; // Reachable
     } catch (error: any) {
       await sleep(1000);
@@ -34,8 +34,8 @@ async function waitUntilReady(client: http.HttpClient) {
   }
 }
 
-async function initializeDeployment(client: http.HttpClient) {
-  const res = await client.postJson(`${AxiomUrl}/auth/init`, {
+async function initializeDeployment(client: http.HttpClient, url: string) {
+  const res = await client.postJson(`${url}/auth/init`, {
     org: 'setup-axiom',
     name: 'setup-axiom',
     email: AxiomEmail,
@@ -46,9 +46,12 @@ async function initializeDeployment(client: http.HttpClient) {
   }
 }
 
-async function createPersonalToken(client: http.HttpClient): Promise<string> {
+async function createPersonalToken(
+  client: http.HttpClient,
+  url: string
+): Promise<string> {
   const sessionRes = await client.post(
-    `${AxiomUrl}/auth/signin/credentials`,
+    `${url}/auth/signin/credentials`,
     JSON.stringify({
       email: AxiomEmail,
       password: AxiomPassword
@@ -66,7 +69,7 @@ async function createPersonalToken(client: http.HttpClient): Promise<string> {
   const cookie = cookieHeader[0].split(';')[0];
 
   const tokenRes = await client.postJson<tokens.Token>(
-    `${AxiomUrl}/api/v1/tokens/personal`,
+    `${url}/api/v1/tokens/personal`,
     {
       name: 'setup-axiom',
       description:
@@ -76,11 +79,11 @@ async function createPersonalToken(client: http.HttpClient): Promise<string> {
   );
 
   const rawToken = await client.getJson<tokens.RawToken>(
-    `${AxiomUrl}/api/v1/tokens/personal/${tokenRes.result!.id}/token`,
+    `${url}/api/v1/tokens/personal/${tokenRes.result!.id}/token`,
     {cookie}
   );
 
-  await client.post(`${AxiomUrl}/logout`, '', {cookie});
+  await client.post(`${url}/logout`, '', {cookie});
 
   return rawToken.result!.token;
 }
@@ -96,7 +99,10 @@ async function writeDockerComposeFile(dir: string) {
 export async function run(dir: string) {
   try {
     let version = core.getInput('axiom-version');
-    const client = new http.HttpClient('github.com/axiomhq/setup-axiom');
+
+    let port = core.getInput('axiom-port');
+    const url = `http://localhost:${port}`;
+    core.setOutput('url', url);
 
     core.info(`Setting up Axiom ${version}`);
 
@@ -104,17 +110,19 @@ export async function run(dir: string) {
     writeDockerComposeFile(dir);
 
     core.startGroup('Starting stack');
-    await startStack(dir, version);
+    await startStack(dir, version, port);
     core.endGroup();
 
+    const client = new http.HttpClient('github.com/axiomhq/setup-axiom');
+
     core.info('Waiting until Axiom is ready');
-    await waitUntilReady(client);
+    await waitUntilReady(client, url);
 
     core.info('Initializing deployment');
-    await initializeDeployment(client);
+    await initializeDeployment(client, url);
 
     core.info('Creating personal token');
-    const personalToken = await createPersonalToken(client);
+    const personalToken = await createPersonalToken(client, url);
     core.setOutput('personal-token', personalToken);
 
     core.info(`Axiom is running and configured`);
