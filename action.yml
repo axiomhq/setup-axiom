@@ -3,7 +3,7 @@ description: "Start a local Axiom deployment, set it up and create a personal to
 author: "Axiom"
 branding:
   color: purple
-  icon: activity
+  icon: x
 inputs:
   axiom-version:
     description: "The Axiom version to use"
