@@ -2809,14 +2809,34 @@ function run(dir) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let version = core.getInput('axiom-version');
-            core.info(`Stopping Axiom stack`);
-            (0, exec_1.exec)('docker', ['compose', 'down', '-v'], {
+            let port = core.getInput('axiom-port');
+            core.startGroup('axiom-core logs');
+            yield (0, exec_1.exec)('docker', ['compose', 'logs', 'axiom-core'], {
                 cwd: dir,
                 env: {
-                    AXIOM_VERSION: version
+                    AXIOM_VERSION: version,
+                    AXIOM_PORT: port
                 }
             });
-            core.info(`Axiom stack stopped`);
+            core.endGroup();
+            core.startGroup('axiom-db logs');
+            yield (0, exec_1.exec)('docker', ['compose', 'logs', 'axiom-db'], {
+                cwd: dir,
+                env: {
+                    AXIOM_VERSION: version,
+                    AXIOM_PORT: port
+                }
+            });
+            core.endGroup();
+            core.startGroup('Stopping Axiom stack');
+            yield (0, exec_1.exec)('docker', ['compose', 'down', '-v'], {
+                cwd: dir,
+                env: {
+                    AXIOM_VERSION: version,
+                    AXIOM_PORT: port
+                }
+            });
+            core.endGroup();
         }
         catch (error) {
             core.warning(error.message);
