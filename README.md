@@ -10,7 +10,7 @@ steps:
   - uses: axiomhq/setup-axiom@v1
     id: axiom
     with:
-      axiom-version: 1.15.0 # Optional, will default to latest
+      axiom-version: 1.16.0 # Optional, will default to latest
       axiom-port: 8080 # Optional, will default to 8080
   - run: |
       echo "Axiom address: ${{ steps.axiom.outputs.url }}"
