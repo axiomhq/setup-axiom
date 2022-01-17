@@ -1,4 +1,6 @@
-# setup-axiom [![CI](https://github.com/axiomhq/setup-axiom/actions/workflows/ci.yml/badge.svg)](https://github.com/axiomhq/setup-axiom/actions/workflows/ci.yml)
+# setup-axiom
+
+[![CI](https://github.com/axiomhq/setup-axiom/actions/workflows/ci.yml/badge.svg)](https://github.com/axiomhq/setup-axiom/actions/workflows/ci.yml)
 
 This action sets up Axiom for use in actions by starting a `docker compose` 
 stack and configuring a personal token.
@@ -12,6 +14,7 @@ steps:
     with:
       axiom-version: 1.16.0 # Optional, will default to latest
       axiom-port: 8080 # Optional, will default to 8080
+      axiom-license: <YOU_LICENSE_TOKEN> # Optional, will default to a free license
   - run: |
       echo "Axiom address: ${{ steps.axiom.outputs.url }}"
       echo "Axiom token: ${{ steps.axiom.outputs.token }}"
