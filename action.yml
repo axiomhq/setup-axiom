@@ -13,6 +13,9 @@ inputs:
     description: "The port to run Axiom on"
     default: "8080"
     required: false
+  axiom-license:
+    description: "The license to run Axiom on"
+    required: false
 runs:
   using: "node12"
   main: "dist/index.js"

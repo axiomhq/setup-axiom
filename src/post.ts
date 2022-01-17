@@ -5,13 +5,15 @@ export async function run(dir: string) {
   try {
     let version = core.getInput('axiom-version');
     let port = core.getInput('axiom-port');
+    let license = core.getInput('axiom-license');
 
     core.startGroup('axiom-core logs');
     await exec('docker', ['compose', 'logs', 'axiom-core'], {
       cwd: dir,
       env: {
         AXIOM_VERSION: version,
-        AXIOM_PORT: port
+        AXIOM_PORT: port,
+        AXIOM_LICENSE: license
       }
     });
     core.endGroup();
@@ -21,7 +23,8 @@ export async function run(dir: string) {
       cwd: dir,
       env: {
         AXIOM_VERSION: version,
-        AXIOM_PORT: port
+        AXIOM_PORT: port,
+        AXIOM_LICENSE: license
       }
     });
     core.endGroup();
@@ -31,7 +34,8 @@ export async function run(dir: string) {
       cwd: dir,
       env: {
         AXIOM_VERSION: version,
-        AXIOM_PORT: port
+        AXIOM_PORT: port,
+        AXIOM_LICENSE: license
       }
     });
     core.endGroup();
