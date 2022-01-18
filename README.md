@@ -1,11 +1,10 @@
-# setup-axiom
-
-[![CI](https://github.com/axiomhq/setup-axiom/actions/workflows/ci.yml/badge.svg)](https://github.com/axiomhq/setup-axiom/actions/workflows/ci.yml)
+# setup-axiom [![CI](https://github.com/axiomhq/setup-axiom/actions/workflows/ci.yml/badge.svg)](https://github.com/axiomhq/setup-axiom/actions/workflows/ci.yml)
 
 This action sets up Axiom for use in actions by starting a `docker compose` 
 stack and configuring a personal token.
 
 ## Usage
+
 ```yaml
 steps:
   - uses: actions/checkout@v2
@@ -22,6 +21,6 @@ steps:
 
 This will run your deployment on <http://localhost:8080>. 
 
-# License
+## License
 
-The scripts and documentation in this project are released under the [MIT License](LICENSE)
+The scripts and documentation in this project are released under the [MIT License](LICENSE).
