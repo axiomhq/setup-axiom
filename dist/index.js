@@ -1531,18 +1531,6 @@ const AxiomPassword = 'setup-axiom';
 const sleep = (ms) => {
     return new Promise((resolve, _reject) => setTimeout(resolve, ms));
 };
-function startStack(dir, version, port, license) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], {
-            cwd: dir,
-            env: {
-                AXIOM_VERSION: version,
-                AXIOM_PORT: port,
-                AXIOM_LICENSE: license
-            }
-        });
-    });
-}
 function waitUntilReady(client, url) {
     return __awaiter(this, void 0, void 0, function* () {
         for (let i = 0; i < 10; i++) {
@@ -1601,7 +1589,13 @@ function run(dir) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let version = core.getInput('axiom-version');
-            let license = core.getInput('axiom-license');
+            const env = {
+                AXIOM_VERSION: version,
+                AXIOM_PORT: core.getInput('axiom-port'),
+                AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
+                AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),
+                AXIOM_CORE_IMAGE: core.getInput('axiom-core-image')
+            };
             let port = core.getInput('axiom-port');
             const url = `http://localhost:${port}`;
             core.setOutput('url', url);
@@ -1609,7 +1603,10 @@ function run(dir) {
             core.info('Writing docker-compose file');
             writeDockerComposeFile(dir);
             core.startGroup('Starting stack');
-            yield startStack(dir, version, port, license);
+            yield exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], {
+                cwd: dir,
+                env
+            });
             core.endGroup();
             const client = new http.HttpClient('github.com/axiomhq/setup-axiom');
             core.info('Waiting until Axiom is ready');
@@ -2739,11 +2736,11 @@ volumes:
 
 services:
   axiom-db:
-    image: axiomhq/axiom-db:\${AXIOM_VERSION}
+    image: \${AXIOM_DB_IMAGE}:\${AXIOM_VERSION}
     environment:
       AXIOM_POSTGRES_URL: "postgres://axiom:axiom@postgres?sslmode=disable&connect_timeout=5"
       AXIOM_STORAGE: "file:///data"
-      AXIOM_LICENSE: \${AXIOM_LICENSE}
+      AXIOM_LICENSE_TOKEN: \${AXIOM_LICENSE_TOKEN}
     depends_on:
       - minio
       - postgres
@@ -2751,11 +2748,11 @@ services:
     volumes:
       - axiomdb_data:/data
   axiom-core:
-    image: axiomhq/axiom-core:\${AXIOM_VERSION}
+    image: \${AXIOM_CORE_IMAGE}:\${AXIOM_VERSION}
     environment:
       AXIOM_POSTGRES_URL: "postgres://axiom:axiom@postgres?sslmode=disable&connect_timeout=5"
       AXIOM_DB_URL: "http://axiom-db"
-      AXIOM_LICENSE: \${AXIOM_LICENSE}
+      AXIOM_LICENSE_TOKEN: \${AXIOM_LICENSE_TOKEN}
     ports:
       - \${AXIOM_PORT}:80
     depends_on:
@@ -2812,38 +2809,21 @@ const exec_1 = __webpack_require__(986);
 function run(dir) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let version = core.getInput('axiom-version');
-            let port = core.getInput('axiom-port');
-            let license = core.getInput('axiom-license');
+            const env = {
+                AXIOM_VERSION: core.getInput('axiom-version'),
+                AXIOM_PORT: core.getInput('axiom-port'),
+                AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
+                AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),
+                AXIOM_CORE_IMAGE: core.getInput('axiom-core-image')
+            };
             core.startGroup('axiom-core logs');
-            yield (0, exec_1.exec)('docker', ['compose', 'logs', 'axiom-core'], {
-                cwd: dir,
-                env: {
-                    AXIOM_VERSION: version,
-                    AXIOM_PORT: port,
-                    AXIOM_LICENSE: license
-                }
-            });
+            yield (0, exec_1.exec)('docker', ['compose', 'logs', 'axiom-core'], { cwd: dir, env });
             core.endGroup();
             core.startGroup('axiom-db logs');
-            yield (0, exec_1.exec)('docker', ['compose', 'logs', 'axiom-db'], {
-                cwd: dir,
-                env: {
-                    AXIOM_VERSION: version,
-                    AXIOM_PORT: port,
-                    AXIOM_LICENSE: license
-                }
-            });
+            yield (0, exec_1.exec)('docker', ['compose', 'logs', 'axiom-db'], { cwd: dir, env });
             core.endGroup();
             core.startGroup('Stopping Axiom stack');
-            yield (0, exec_1.exec)('docker', ['compose', 'down', '-v'], {
-                cwd: dir,
-                env: {
-                    AXIOM_VERSION: version,
-                    AXIOM_PORT: port,
-                    AXIOM_LICENSE: license
-                }
-            });
+            yield (0, exec_1.exec)('docker', ['compose', 'down', '-v'], { cwd: dir, env });
             core.endGroup();
         }
         catch (error) {
