@@ -13,26 +13,6 @@ const sleep = (ms: number) => {
   return new Promise((resolve, _reject) => setTimeout(resolve, ms));
 };
 
-async function startStack(
-  dir: string,
-  version: string,
-  port: string,
-  license: string,
-  dbImage: string,
-  coreImage: string
-) {
-  await exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], {
-    cwd: dir,
-    env: {
-      AXIOM_VERSION: version,
-      AXIOM_PORT: port,
-      AXIOM_LICENSE_TOKEN: license,
-      AXIOM_DB_IMAGE: dbImage,
-      AXIOM_CORE_IMAGE: coreImage,
-    }
-  });
-}
-
 async function waitUntilReady(client: http.HttpClient, url: string) {
   for (let i = 0; i < 10; i++) {
     try {
@@ -109,9 +89,13 @@ async function writeDockerComposeFile(dir: string) {
 export async function run(dir: string) {
   try {
     let version = core.getInput('axiom-version');
-    let license = core.getInput('axiom-license');
-    let dbImage = core.getInput('axiom-db-image');
-    let coreImage = core.getInput('axiom-core-image');
+    const env = {
+      AXIOM_VERSION: version,
+      AXIOM_PORT: core.getInput('axiom-port'),
+      AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
+      AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),
+      AXIOM_CORE_IMAGE: core.getInput('axiom-core-image'),
+    };
 
     let port = core.getInput('axiom-port');
     const url = `http://localhost:${port}`;
@@ -123,7 +107,7 @@ export async function run(dir: string) {
     writeDockerComposeFile(dir);
 
     core.startGroup('Starting stack');
-    await startStack(dir, version, port, license, dbImage, coreImage);
+    await exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], { cwd: dir, env });
     core.endGroup();
 
     const client = new http.HttpClient('github.com/axiomhq/setup-axiom');

@@ -1531,20 +1531,6 @@ const AxiomPassword = 'setup-axiom';
 const sleep = (ms) => {
     return new Promise((resolve, _reject) => setTimeout(resolve, ms));
 };
-function startStack(dir, version, port, license, dbImage, coreImage) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], {
-            cwd: dir,
-            env: {
-                AXIOM_VERSION: version,
-                AXIOM_PORT: port,
-                AXIOM_LICENSE_TOKEN: license,
-                AXIOM_DB_IMAGE: dbImage,
-                AXIOM_CORE_IMAGE: coreImage,
-            }
-        });
-    });
-}
 function waitUntilReady(client, url) {
     return __awaiter(this, void 0, void 0, function* () {
         for (let i = 0; i < 10; i++) {
@@ -1603,9 +1589,13 @@ function run(dir) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let version = core.getInput('axiom-version');
-            let license = core.getInput('axiom-license');
-            let dbImage = core.getInput('axiom-db-image');
-            let coreImage = core.getInput('axiom-core-image');
+            const env = {
+                AXIOM_VERSION: version,
+                AXIOM_PORT: core.getInput('axiom-port'),
+                AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
+                AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),
+                AXIOM_CORE_IMAGE: core.getInput('axiom-core-image'),
+            };
             let port = core.getInput('axiom-port');
             const url = `http://localhost:${port}`;
             core.setOutput('url', url);
@@ -1613,7 +1603,7 @@ function run(dir) {
             core.info('Writing docker-compose file');
             writeDockerComposeFile(dir);
             core.startGroup('Starting stack');
-            yield startStack(dir, version, port, license, dbImage, coreImage);
+            yield exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], { cwd: dir, env });
             core.endGroup();
             const client = new http.HttpClient('github.com/axiomhq/setup-axiom');
             core.info('Waiting until Axiom is ready');
