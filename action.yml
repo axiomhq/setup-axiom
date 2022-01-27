@@ -16,6 +16,14 @@ inputs:
   axiom-license:
     description: "The license to run Axiom on"
     required: false
+  axiom-db-image:
+    description: "The Docker image to for the DB"
+    default: "axiomhq/axiom-db"
+    required: false
+  axiom-core-image:
+    description: "The Docker image to for Core"
+    default: "axiomhq/axiom-core"
+    required: false
 runs:
   using: "node12"
   main: "dist/index.js"

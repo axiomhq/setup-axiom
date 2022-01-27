@@ -6,7 +6,7 @@ volumes:
 
 services:
   axiom-db:
-    image: axiomhq/axiom-db:\${AXIOM_VERSION}
+    image: \${AXIOM_DB_IMAGE}:\${AXIOM_VERSION}
     environment:
       AXIOM_POSTGRES_URL: "postgres://axiom:axiom@postgres?sslmode=disable&connect_timeout=5"
       AXIOM_STORAGE: "file:///data"
@@ -18,7 +18,7 @@ services:
     volumes:
       - axiomdb_data:/data
   axiom-core:
-    image: axiomhq/axiom-core:\${AXIOM_VERSION}
+    image: \${AXIOM_CORE_IMAGE}:\${AXIOM_VERSION}
     environment:
       AXIOM_POSTGRES_URL: "postgres://axiom:axiom@postgres?sslmode=disable&connect_timeout=5"
       AXIOM_DB_URL: "http://axiom-db"
