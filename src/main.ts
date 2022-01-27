@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as http from '@actions/http-client';
-import { tokens } from '@axiomhq/axiom-node';
+import {tokens} from '@axiomhq/axiom-node';
 import * as io from '@actions/io';
 import * as fs from 'fs';
 import * as dockerCompose from './docker-compose';
@@ -65,15 +65,15 @@ async function createPersonalToken(
       description:
         'This token is automatically created by github.com/axiomhq/setup-axiom'
     },
-    { cookie }
+    {cookie}
   );
 
   const rawToken = await client.getJson<tokens.RawToken>(
     `${url}/api/v1/tokens/personal/${tokenRes.result!.id}/token`,
-    { cookie }
+    {cookie}
   );
 
-  await client.post(`${url}/logout`, '', { cookie });
+  await client.post(`${url}/logout`, '', {cookie});
 
   return rawToken.result!.token;
 }
@@ -94,7 +94,7 @@ export async function run(dir: string) {
       AXIOM_PORT: core.getInput('axiom-port'),
       AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
       AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),
-      AXIOM_CORE_IMAGE: core.getInput('axiom-core-image'),
+      AXIOM_CORE_IMAGE: core.getInput('axiom-core-image')
     };
 
     let port = core.getInput('axiom-port');
@@ -107,7 +107,10 @@ export async function run(dir: string) {
     writeDockerComposeFile(dir);
 
     core.startGroup('Starting stack');
-    await exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], { cwd: dir, env });
+    await exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], {
+      cwd: dir,
+      env
+    });
     core.endGroup();
 
     const client = new http.HttpClient('github.com/axiomhq/setup-axiom');

@@ -1594,7 +1594,7 @@ function run(dir) {
                 AXIOM_PORT: core.getInput('axiom-port'),
                 AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
                 AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),
-                AXIOM_CORE_IMAGE: core.getInput('axiom-core-image'),
+                AXIOM_CORE_IMAGE: core.getInput('axiom-core-image')
             };
             let port = core.getInput('axiom-port');
             const url = `http://localhost:${port}`;
@@ -1603,7 +1603,10 @@ function run(dir) {
             core.info('Writing docker-compose file');
             writeDockerComposeFile(dir);
             core.startGroup('Starting stack');
-            yield exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], { cwd: dir, env });
+            yield exec.exec('docker', ['compose', 'up', '-d', '--quiet-pull'], {
+                cwd: dir,
+                env
+            });
             core.endGroup();
             const client = new http.HttpClient('github.com/axiomhq/setup-axiom');
             core.info('Waiting until Axiom is ready');
@@ -2811,7 +2814,7 @@ function run(dir) {
                 AXIOM_PORT: core.getInput('axiom-port'),
                 AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
                 AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),
-                AXIOM_CORE_IMAGE: core.getInput('axiom-core-image'),
+                AXIOM_CORE_IMAGE: core.getInput('axiom-core-image')
             };
             core.startGroup('axiom-core logs');
             yield (0, exec_1.exec)('docker', ['compose', 'logs', 'axiom-core'], { cwd: dir, env });

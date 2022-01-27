@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { exec } from '@actions/exec';
+import {exec} from '@actions/exec';
 
 export async function run(dir: string) {
   try {
@@ -8,19 +8,19 @@ export async function run(dir: string) {
       AXIOM_PORT: core.getInput('axiom-port'),
       AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
       AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),
-      AXIOM_CORE_IMAGE: core.getInput('axiom-core-image'),
+      AXIOM_CORE_IMAGE: core.getInput('axiom-core-image')
     };
 
     core.startGroup('axiom-core logs');
-    await exec('docker', ['compose', 'logs', 'axiom-core'], { cwd: dir, env });
+    await exec('docker', ['compose', 'logs', 'axiom-core'], {cwd: dir, env});
     core.endGroup();
 
     core.startGroup('axiom-db logs');
-    await exec('docker', ['compose', 'logs', 'axiom-db'], { cwd: dir, env });
+    await exec('docker', ['compose', 'logs', 'axiom-db'], {cwd: dir, env});
     core.endGroup();
 
     core.startGroup('Stopping Axiom stack');
-    await exec('docker', ['compose', 'down', '-v'], { cwd: dir, env });
+    await exec('docker', ['compose', 'down', '-v'], {cwd: dir, env});
     core.endGroup();
   } catch (error: any) {
     core.warning(error.message);
