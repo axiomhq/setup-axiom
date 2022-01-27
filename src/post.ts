@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import {exec} from '@actions/exec';
+import { exec } from '@actions/exec';
 
 export async function run(dir: string) {
   try {
@@ -13,7 +13,7 @@ export async function run(dir: string) {
       env: {
         AXIOM_VERSION: version,
         AXIOM_PORT: port,
-        AXIOM_LICENSE: license
+        AXIOM_LICENSE_TOKEN: license
       }
     });
     core.endGroup();
@@ -24,7 +24,7 @@ export async function run(dir: string) {
       env: {
         AXIOM_VERSION: version,
         AXIOM_PORT: port,
-        AXIOM_LICENSE: license
+        AXIOM_LICENSE_TOKEN: license
       }
     });
     core.endGroup();
@@ -35,7 +35,7 @@ export async function run(dir: string) {
       env: {
         AXIOM_VERSION: version,
         AXIOM_PORT: port,
-        AXIOM_LICENSE: license
+        AXIOM_LICENSE_TOKEN: license
       }
     });
     core.endGroup();

@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as http from '@actions/http-client';
-import {tokens} from '@axiomhq/axiom-node';
+import { tokens } from '@axiomhq/axiom-node';
 import * as io from '@actions/io';
 import * as fs from 'fs';
 import * as dockerCompose from './docker-compose';
@@ -24,7 +24,7 @@ async function startStack(
     env: {
       AXIOM_VERSION: version,
       AXIOM_PORT: port,
-      AXIOM_LICENSE: license
+      AXIOM_LICENSE_TOKEN: license
     }
   });
 }
@@ -81,15 +81,15 @@ async function createPersonalToken(
       description:
         'This token is automatically created by github.com/axiomhq/setup-axiom'
     },
-    {cookie}
+    { cookie }
   );
 
   const rawToken = await client.getJson<tokens.RawToken>(
     `${url}/api/v1/tokens/personal/${tokenRes.result!.id}/token`,
-    {cookie}
+    { cookie }
   );
 
-  await client.post(`${url}/logout`, '', {cookie});
+  await client.post(`${url}/logout`, '', { cookie });
 
   return rawToken.result!.token;
 }
