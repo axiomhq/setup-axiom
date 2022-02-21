@@ -7,7 +7,7 @@ branding:
 inputs:
   axiom-version:
     description: "The Axiom version to use"
-    default: "1.18.0"
+    default: "1.19.0"
     required: false
   axiom-port:
     description: "The port to run Axiom on"
