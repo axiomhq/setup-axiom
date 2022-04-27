@@ -11,7 +11,7 @@ steps:
   - uses: axiomhq/setup-axiom@v1
     id: axiom
     with:
-      axiom-version: 1.19.0 # Optional, will default to latest
+      axiom-version: 1.20.0 # Optional, will default to latest
       axiom-port: 8080 # Optional, will default to 8080
       axiom-license: <YOU_LICENSE_TOKEN> # Optional, will default to a free license
   - run: |
