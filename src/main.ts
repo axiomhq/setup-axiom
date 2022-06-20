@@ -74,8 +74,6 @@ async function createPersonalToken(
     {cookie}
   );
 
-  await client.post(`${url}/logout`, '', {cookie});
-
   return rawToken.result!.token;
 }
 

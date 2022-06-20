@@ -1915,7 +1915,6 @@ function createPersonalToken(client, url) {
             description: 'This token is automatically created by github.com/axiomhq/setup-axiom'
         }, { cookie });
         const rawToken = yield client.getJson(`${url}/api/v1/tokens/personal/${tokenRes.result.id}/token`, { cookie });
-        yield client.post(`${url}/logout`, '', { cookie });
         return rawToken.result.token;
     });
 }
