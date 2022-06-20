@@ -63,7 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        axiom: [1.16.0, 1.17.0]
+        axiom: [1.16.0, 1.17.0, 1.18.0, 1.19.0, 1.20.0, 1.21.0]
     steps:
       - uses: actions/checkout@v2
       - name: Run axiomhq/setup-axiom@latest
