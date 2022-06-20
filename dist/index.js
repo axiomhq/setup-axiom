@@ -2751,7 +2751,7 @@ services:
     image: \${AXIOM_CORE_IMAGE}:\${AXIOM_VERSION}
     environment:
       AXIOM_POSTGRES_URL: "postgres://axiom:axiom@postgres?sslmode=disable&connect_timeout=5"
-      AXIOM_DB_URL: "http://axiom-db"
+      AXIOM_DB_URL: "http://axiom-db:8080"
       AXIOM_LICENSE_TOKEN: \${AXIOM_LICENSE_TOKEN}
     ports:
       - \${AXIOM_PORT}:80
