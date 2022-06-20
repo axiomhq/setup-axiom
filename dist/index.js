@@ -1932,8 +1932,8 @@ function run(dir) {
             const env = {
                 AXIOM_VERSION: version,
                 AXIOM_PORT: core.getInput('axiom-port'),
-                // Starting with 1.21.0, DB exposes 8080 instead of 80
-                AXIOM_DB_PORT: (0, gte_1.default)(version, '1.21.0') ? '8080' : '80',
+                // Starting with 1.21.0, images expose 8080 instead of 80
+                AXIOM_INTERNAL_PORT: (0, gte_1.default)(version, '1.21.0') ? '8080' : '80',
                 AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
                 AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),
                 AXIOM_CORE_IMAGE: core.getInput('axiom-core-image')
@@ -3119,10 +3119,10 @@ services:
     image: \${AXIOM_CORE_IMAGE}:\${AXIOM_VERSION}
     environment:
       AXIOM_POSTGRES_URL: "postgres://axiom:axiom@postgres?sslmode=disable&connect_timeout=5"
-      AXIOM_DB_URL: "http://axiom-db:\${AXIOM_DB_PORT}"
+      AXIOM_DB_URL: "http://axiom-db:\${AXIOM_INTERNAL_PORT}"
       AXIOM_LICENSE_TOKEN: \${AXIOM_LICENSE_TOKEN}
     ports:
-      - \${AXIOM_PORT}:80
+      - \${AXIOM_PORT}:\${AXIOM_INTERNAL_PORT}
     depends_on:
       - axiom-db
     restart: unless-stopped
@@ -3184,8 +3184,8 @@ function run(dir) {
             const version = core.getInput('axiom-version');
             const env = {
                 AXIOM_VERSION: version,
-                // Starting with 1.21.0, DB exposes 8080 instead of 80
-                AXIOM_DB_PORT: (0, gte_1.default)(version, '1.21.0') ? '8080' : '80',
+                // Starting with 1.21.0, images expose 8080 instead of 80
+                AXIOM_INTERNAL_PORT: (0, gte_1.default)(version, '1.21.0') ? '8080' : '80',
                 AXIOM_PORT: core.getInput('axiom-port'),
                 AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
                 AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),

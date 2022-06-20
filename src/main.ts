@@ -93,8 +93,8 @@ export async function run(dir: string) {
     const env = {
       AXIOM_VERSION: version,
       AXIOM_PORT: core.getInput('axiom-port'),
-      // Starting with 1.21.0, DB exposes 8080 instead of 80
-      AXIOM_DB_PORT: semverGte(version, '1.21.0') ? '8080' : '80',
+      // Starting with 1.21.0, images expose 8080 instead of 80
+      AXIOM_INTERNAL_PORT: semverGte(version, '1.21.0') ? '8080' : '80',
       AXIOM_LICENSE_TOKEN: core.getInput('axiom-license'),
       AXIOM_DB_IMAGE: core.getInput('axiom-db-image'),
       AXIOM_CORE_IMAGE: core.getInput('axiom-core-image')
